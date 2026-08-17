@@ -178,11 +178,11 @@ En Vercel, **Settings › Environment Variables**, agrega:
 | `DATABASE_URL` | Pooled connection de Neon |
 | `MIGRATE_DATABASE_URL` | Direct connection de Neon |
 | `AUTH_SECRET` | Una clave nueva de 48 bytes (no reuses la local) |
-| `ADMIN_EMAIL` | Tu correo |
-| `ADMIN_PASSWORD` | Una contraseña larga |
-| `ADMIN_NOMBRE` | Tu nombre |
 
-Vercel ejecuta las migraciones solo durante el `build`, así que no hay pasos extra.
+Son solo esas tres: `ADMIN_EMAIL` y `ADMIN_PASSWORD` no van en Vercel, porque el
+seed se ejecuta desde tu computador.
+
+Vercel corre las migraciones durante el `build`, así que no hay pasos extra.
 
 ### 4. Cargar los datos iniciales
 

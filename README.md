@@ -186,14 +186,35 @@ Vercel ejecuta las migraciones solo durante el `build`, así que no hay pasos ex
 
 ### 4. Cargar los datos iniciales
 
-Una única vez, desde tu computador, apuntando a la base de producción. En Windows
-PowerShell:
+Las tablas las crea Vercel durante el `build`, pero quedan vacías. Una única vez,
+desde tu computador y apuntando a la base de producción (Windows PowerShell):
 
 ```bash
 $env:DATABASE_URL="<pooled de Neon>"; $env:ADMIN_EMAIL="tu-correo@ejemplo.cl"; $env:ADMIN_PASSWORD="tu-clave-larga"; npm run db:seed
 ```
 
-Cierra esa ventana al terminar, para que esas variables no queden cargadas.
+Eso deja los 7 productos con sus fotos, los datos de la empresa y tu cuenta de
+administrador. **Cierra esa ventana de PowerShell al terminar**, para que la
+dirección de la base no quede cargada en la sesión.
+
+### Administradores
+
+El primer administrador lo crea el seed. Después puedes agregar más desde
+**Administración › Equipo**, sin comandos.
+
+Si necesitas crear uno a mano —por ejemplo si olvidaste la contraseña y no puedes
+entrar— usa:
+
+```bash
+npm run crear-admin -- correo@empresa.cl "MiClaveLarga" "Nombre Apellido"
+```
+
+Si el correo ya existe no crea un duplicado: le cambia la contraseña, lo deja como
+administrador y lo reactiva. Para usarlo contra producción, antepone la variable:
+
+```bash
+$env:DATABASE_URL="<pooled de Neon>"; npm run crear-admin -- correo@empresa.cl "MiClaveLarga"
+```
 
 Listo: entra a tu dominio de Vercel con el `ADMIN_EMAIL` y `ADMIN_PASSWORD` que
 configuraste.
@@ -267,6 +288,7 @@ antiguos siguen cuadrando.
 | `npm run db:migrate` | Crea y aplica una migración nueva |
 | `npm run db:deploy` | Aplica migraciones pendientes (producción) |
 | `npm run db:seed` | Carga los datos iniciales |
+| `npm run crear-admin` | Crea un administrador o le cambia la contraseña |
 | `npm run db:studio` | Explorador visual de la base de datos |
 | `npm run db:reset` | Borra todo y vuelve a empezar |
 | `npm run typecheck` | Revisa los tipos |

@@ -1,0 +1,264 @@
+// Catálogo Don Humberto — Comercializadora Valle del Maule Ltda.
+// Documentación: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// ADMIN administra todo. CLIENTE existe para poder reabrir el catálogo al
+/// público más adelante; hoy ese acceso está cerrado (ver ACCESO_CLIENTES_HABILITADO
+/// en src/lib/acceso.ts). Los clientes de la empresa se guardan en `Cliente`,
+/// que es una ficha de contacto y no una cuenta con la que se pueda entrar.
+enum Rol {
+  ADMIN
+  CLIENTE
+}
+
+enum EstadoCotizacion {
+  BORRADOR
+  ENVIADA
+  ACEPTADA
+  RECHAZADA
+}
+
+model Usuario {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  nombre       String
+  empresa      String?
+  telefono     String?
+  passwordHash String
+  rol          Rol       @default(CLIENTE)
+  activo       Boolean   @default(true)
+  ultimoAcceso DateTime?
+  creadoEn     DateTime  @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  cambiosDePrecio HistorialPrecio[] @relation("AutorCambio")
+  cotizaciones    Cotizacion[]      @relation("AutorCotizacion")
+
+  @@index([activo])
+  @@map("usuarios")
+}
+
+model Categoria {
+  id       String    @id @default(cuid())
+  nombre   String    @unique
+  slug     String    @unique
+  orden    Int       @default(0)
+  creadoEn DateTime  @default(now())
+
+  productos Producto[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  nombre      String
+  descripcion String?
+  /// Formato de despacho, ej: "Manga 10 kg c/u · Pallet 1.000–1.200 kg"
+  formato     String  @default("Manga 10 kg c/u · Pallet 1.000–1.200 kg")
+  /// Color de acento en la ficha, en hexadecimal.
+  color       String  @default("#153a7a")
+
+  /// Precios en CLP por kilo. Se guardan como enteros: el peso no usa decimales.
+  precioNeto  Int
+  precioFirme Int
+
+  activo   Boolean @default(true)
+  destacado Boolean @default(false)
+  orden    Int     @default(0)
+
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  imagenId String?
+  imagen   Imagen? @relation(fields: [imagenId], references: [id], onDelete: SetNull)
+
+  historial          HistorialPrecio[]
+  lineasDeCotizacion LineaCotizacion[]
+
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([activo, orden])
+  @@index([categoriaId])
+  @@map("productos")
+}
+
+/// Queda registro de cada cambio de precio para poder revisar el historial.
+model HistorialPrecio {
+  id          String   @id @default(cuid())
+  productoId  String
+  producto    Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+
+  precioNetoAnterior  Int?
+  precioFirmeAnterior Int?
+  precioNeto          Int
+  precioFirme         Int
+
+  autorId String?
+  autor   Usuario? @relation("AutorCambio", fields: [autorId], references: [id], onDelete: SetNull)
+
+  creadoEn DateTime @default(now())
+
+  @@index([productoId, creadoEn])
+  @@map("historial_precios")
+}
+
+/// Las fotos se guardan en la base de datos y se sirven por /api/imagenes/[id].
+/// Son pocas y livianas (se comprimen al subir), así no hace falta otro servicio.
+model Imagen {
+  id       String   @id @default(cuid())
+  nombre   String
+  mimeType String
+  datos    Bytes
+  ancho    Int
+  alto     Int
+  bytes    Int
+  creadoEn DateTime @default(now())
+
+  productos Producto[]
+  ajustes   Ajustes[] @relation("LogoAjustes")
+
+  @@map("imagenes")
+}
+
+/// Fila única (id = "singleton") con los datos de la empresa que salen en el catálogo y el PDF.
+model Ajustes {
+  id String @id @default("singleton")
+
+  nombreMarca String @default("Don Humberto")
+  eslogan     String @default("Legumbres premium · desde 1999")
+  titulo      String @default("Catálogo Mayorista de Legumbres a Granel")
+  region      String @default("Región del Maule · Longaví · Chile")
+
+  razonSocial String @default("Comercializadora Valle del Maule Ltda")
+  rut         String @default("76.160.013-3")
+  direccion   String @default("1 Oriente N°833, Longaví, Región del Maule")
+  correo      String @default("c.vil.cast@gmail.com")
+  whatsapp    String @default("+56 9 5149 9687")
+
+  condiciones String @default("Formato de despacho: cada producto se entrega en mangas de 10 kg, paletizado entre 1.000 y 1.200 kg por pallet.\nPrecios: valores en pesos chilenos (CLP) por kilo. Precio neto + IVA y precio de compra firme.\nVigencia: precios de referencia sujetos a confirmación al momento de cotizar.\nPedidos: contáctanos por WhatsApp o correo para confirmar stock y cerrar tu pedido.")
+
+  logoId String?
+  logo   Imagen? @relation("LogoAjustes", fields: [logoId], references: [id], onDelete: SetNull)
+
+  actualizadoEn DateTime @updatedAt
+
+  @@map("ajustes")
+}
+
+/// Ficha de contacto de un cliente de la empresa.
+/// NO es una cuenta de acceso: sirve para dirigirle cotizaciones y enviárselas.
+model Cliente {
+  id       String  @id @default(cuid())
+  nombre   String
+  empresa  String?
+  rut      String?
+  correo   String?
+  /// Número para WhatsApp, con código de país. Ej: +56 9 1234 5678
+  whatsapp String?
+  telefono String?
+  /// Dirección donde se despacha; influye en el precio que se le cotiza.
+  direccionDespacho String?
+  notas    String?
+  activo   Boolean @default(true)
+
+  cotizaciones Cotizacion[]
+
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([activo, nombre])
+  @@map("clientes")
+}
+
+/// Cotización con precios propios para un cliente concreto.
+model Cotizacion {
+  /// Correlativo visible para el cliente: "Cotización N° 14".
+  numero Int @id @default(autoincrement())
+
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  estado EstadoCotizacion @default(BORRADOR)
+
+  /// Días que la cotización sigue vigente desde su emisión.
+  validezDias Int @default(15)
+  /// IVA aplicado, por si algún día cambia la tasa. Se guarda con la cotización
+  /// para que un documento antiguo siga cuadrando aunque la tasa cambie.
+  ivaPorcentaje Int @default(19)
+
+  /// Condiciones de despacho pactadas: son la razón de que el precio varíe.
+  condicionDespacho String?
+  notas             String?
+
+  autorId String?
+  autor   Usuario? @relation("AutorCotizacion", fields: [autorId], references: [id], onDelete: SetNull)
+
+  lineas LineaCotizacion[]
+  pdfs   PdfCompartido[]
+
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([clienteId, creadoEn])
+  @@index([estado])
+  @@map("cotizaciones")
+}
+
+model LineaCotizacion {
+  id           String     @id @default(cuid())
+  cotizacionId Int
+  cotizacion   Cotizacion @relation(fields: [cotizacionId], references: [numero], onDelete: Cascade)
+
+  /// Referencia al producto, solo para proponer precios en la próxima cotización.
+  productoId String?
+  producto   Producto? @relation(fields: [productoId], references: [id], onDelete: SetNull)
+
+  /// Nombre y formato congelados al momento de cotizar: si después renombras
+  /// el producto o cambias su formato, la cotización enviada no debe alterarse.
+  nombre  String
+  formato String
+
+  cantidadKg Int
+  /// Precio por kilo pactado con este cliente. No tiene por qué ser el del catálogo.
+  precioNeto Int
+
+  orden Int @default(0)
+
+  @@index([cotizacionId, orden])
+  @@map("lineas_cotizacion")
+}
+
+/// PDF ya generado y guardado para poder mandarlo por WhatsApp como enlace.
+/// El cliente lo abre sin cuenta: el token es la única credencial, por eso es largo.
+model PdfCompartido {
+  id     String @id @default(cuid())
+  token  String @unique
+  nombreArchivo String
+
+  datos Bytes
+  bytes Int
+
+  cotizacionId Int?
+  cotizacion   Cotizacion? @relation(fields: [cotizacionId], references: [numero], onDelete: Cascade)
+
+  /// Para quién se generó, solo como registro interno.
+  enviadoA String?
+
+  descargas Int       @default(0)
+  expiraEn  DateTime?
+  creadoEn  DateTime  @default(now())
+
+  @@index([cotizacionId])
+  @@map("pdfs_compartidos")
+}

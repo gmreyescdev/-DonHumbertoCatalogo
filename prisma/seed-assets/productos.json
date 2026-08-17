@@ -1,0 +1,110 @@
+{
+  "products": [
+    {
+      "id": "tortola",
+      "nombre": "Poroto Tórtola",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 1770,
+      "firme": 1755,
+      "color": "#c8202a"
+    },
+    {
+      "id": "blanco",
+      "nombre": "Poroto Blanco",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 1260,
+      "firme": 1245,
+      "color": "#4a90c2"
+    },
+    {
+      "id": "hallado",
+      "nombre": "Poroto Hallado",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 1250,
+      "firme": 1235,
+      "color": "#d98244"
+    },
+    {
+      "id": "negro",
+      "nombre": "Poroto Negro",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 950,
+      "firme": 935,
+      "color": "#5b4a7a"
+    },
+    {
+      "id": "garbanzo",
+      "nombre": "Garbanzo Sin Piel",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 1120,
+      "firme": 1105,
+      "color": "#e0b94a"
+    },
+    {
+      "id": "arveja",
+      "nombre": "Arveja Verde Partida",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 885,
+      "firme": 870,
+      "color": "#7fae4a"
+    },
+    {
+      "id": "lenteja",
+      "nombre": "Lenteja 6 mm",
+      "fmt": "Manga 10 kg c/u · Pallet 1.000–1.200 kg",
+      "neto": 980,
+      "firme": 965,
+      "color": "#8a9a3a"
+    }
+  ],
+  "images": [
+    {
+      "id": "tortola",
+      "file": "tortola.jpg",
+      "mime": "image/jpeg",
+      "bytes": 10284
+    },
+    {
+      "id": "negro",
+      "file": "negro.jpg",
+      "mime": "image/jpeg",
+      "bytes": 9136
+    },
+    {
+      "id": "hallado",
+      "file": "hallado.jpg",
+      "mime": "image/jpeg",
+      "bytes": 9833
+    },
+    {
+      "id": "blanco",
+      "file": "blanco.jpg",
+      "mime": "image/jpeg",
+      "bytes": 9659
+    },
+    {
+      "id": "garbanzo",
+      "file": "garbanzo.jpg",
+      "mime": "image/jpeg",
+      "bytes": 8320
+    },
+    {
+      "id": "arveja",
+      "file": "arveja.jpg",
+      "mime": "image/jpeg",
+      "bytes": 10058
+    },
+    {
+      "id": "lenteja",
+      "file": "lenteja.jpg",
+      "mime": "image/jpeg",
+      "bytes": 8226
+    },
+    {
+      "id": "logo",
+      "file": "logo.png",
+      "mime": "image/png",
+      "bytes": 33096
+    }
+  ]
+}

@@ -1,0 +1,770 @@
+/* ---------------------------------------------------------------------------
+   Hoja de estilos del catálogo imprimible.
+
+   IMPORTANTE: aquí NO se usa Tailwind. Tailwind v4 expresa sus colores en
+   oklch(), y html2canvas (la librería que convierte la página en imagen para
+   el PDF) no sabe interpretar esa función y falla. Por eso este layout es una
+   raíz aparte, con colores escritos en hexadecimal.
+   --------------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #e9edf3;
+  color: #1a2233;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------- Barra superior ---------------------------- */
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #dfe4ec;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.barra h1 {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 16px;
+  color: #153a7a;
+  letter-spacing: 0.3px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primario {
+  background: #153a7a;
+  color: #ffffff;
+}
+.btn-primario:hover {
+  background: #1f4f9e;
+}
+.btn-primario:disabled {
+  background: #8d9bb4;
+  cursor: not-allowed;
+}
+
+.btn-suave {
+  background: #eef1f6;
+  color: #153a7a;
+}
+.btn-suave:hover {
+  background: #e2e8f2;
+}
+
+.estado {
+  font-size: 13px;
+  color: #5a6472;
+}
+
+/* --------------------------- Barra de acciones ----------------------------- */
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.acciones-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.acciones-fila.envio {
+  padding-top: 10px;
+  border-top: 1px solid #e6e9ef;
+}
+
+.etiqueta-envio {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a6472;
+}
+
+.campo-telefono {
+  width: 190px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a2233;
+  background: #ffffff;
+  border: 1px solid #cfd6e2;
+  border-radius: 10px;
+}
+
+.campo-telefono:focus {
+  outline: 2px solid #1f4f9e;
+  outline-offset: 1px;
+  border-color: #1f4f9e;
+}
+
+.btn-whatsapp {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #ffffff;
+  background: #1f8a4c;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-whatsapp:hover {
+  background: #17743e;
+}
+
+.btn-whatsapp:disabled {
+  background: #9bb8a6;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c8202a;
+}
+
+.enlace-generado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #5a6472;
+  word-break: break-all;
+}
+
+.enlace-generado a {
+  color: #1f4f9e;
+}
+
+.btn-copiar {
+  border: 1px solid #cfd6e2;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  color: #153a7a;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.btn-copiar:hover {
+  background: #eef1f6;
+}
+
+.pista {
+  max-width: 840px;
+  margin: 18px auto 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #5a6472;
+  background: #ffffff;
+  border-left: 4px solid #c9a24a;
+  border-radius: 8px;
+}
+
+/* ---------------------------------- Hojas ---------------------------------- */
+
+.hojas {
+  padding: 18px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  /* En pantallas angostas la hoja no se encoge: se desplaza en horizontal.
+     Así html2canvas siempre captura una A4 exacta, mire donde mire el usuario. */
+  overflow-x: auto;
+}
+
+/* A4 a 96 ppp: 794 × 1123 px.
+   Estas medidas son fijas a propósito: si la hoja se escalara para caber en
+   la pantalla, el PDF saldría con las proporciones cambiadas. */
+.hoja {
+  flex: 0 0 auto;
+  width: 794px;
+  height: 1123px;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* --------------------------------- Portada --------------------------------- */
+
+.portada {
+  display: flex;
+  flex-direction: column;
+  padding: 70px 60px;
+  color: #ffffff;
+  background: linear-gradient(160deg, #153a7a 0%, #0f2c5c 100%);
+}
+
+.portada .logo {
+  position: absolute;
+  top: 54px;
+  right: 56px;
+  width: 150px;
+  padding: 8px;
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.portada .logo img {
+  display: block;
+  width: 100%;
+}
+
+.portada .antetitulo {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #c9a24a;
+}
+
+.portada .marca {
+  margin: 18px 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 82px;
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.portada .eslogan {
+  margin-bottom: 36px;
+  font-size: 20px;
+  font-style: italic;
+  color: #d8e2f2;
+}
+
+.portada .regla {
+  width: 90px;
+  height: 5px;
+  margin: 30px 0;
+  background: #c8202a;
+}
+
+.portada .titulo {
+  max-width: 560px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.portada .region {
+  margin-top: 18px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #c7d4ea;
+}
+
+.portada .fotos {
+  display: flex;
+  gap: 14px;
+  margin-top: auto;
+}
+
+.portada .fotos img {
+  width: 110px;
+  height: 150px;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+}
+
+/* -------------------------------- Productos -------------------------------- */
+
+.cabecera {
+  padding: 30px 46px;
+  background: #153a7a;
+  color: #ffffff;
+}
+
+.cabecera .antetitulo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c9a24a;
+}
+
+.cabecera h2 {
+  margin: 6px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.lista {
+  padding: 26px 40px;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e6e9ef;
+}
+
+.fila .franja {
+  width: 6px;
+  align-self: stretch;
+  border-radius: 4px;
+}
+
+.fila .foto {
+  width: 66px;
+  height: 104px;
+  object-fit: contain;
+}
+
+.fila .sinfoto {
+  width: 66px;
+  height: 104px;
+  border: 1px dashed #d3d9e3;
+  border-radius: 6px;
+}
+
+.fila .datos {
+  flex: 1;
+  min-width: 0;
+}
+
+.fila .nombre {
+  font-size: 20px;
+  font-weight: 700;
+  color: #153a7a;
+}
+
+.fila .formato {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: #6b7480;
+}
+
+.precios {
+  display: flex;
+  gap: 14px;
+}
+
+.caja {
+  min-width: 118px;
+  padding: 8px 10px;
+  text-align: center;
+  background: #f5f7fb;
+  border-radius: 10px;
+}
+
+.caja.firme {
+  background: #fbeaec;
+}
+
+.caja .rotulo {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #7a8494;
+}
+
+.caja .valor {
+  margin-top: 3px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a2233;
+}
+
+.caja .valor .signo {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.caja.firme .valor {
+  color: #c8202a;
+}
+
+.caja .kilo {
+  margin-top: 1px;
+  font-size: 10px;
+  color: #96a0ad;
+}
+
+.nota {
+  margin: 16px 12px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #8892a0;
+}
+
+/* -------------------------------- Contacto --------------------------------- */
+
+/* Sin `height`: hereda los 1123 px de .hoja. Si se pusiera height:100% la hoja
+   colapsaría a la altura de su contenido y saldría estirada en el PDF. */
+.contacto {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.contacto .arriba {
+  flex: 1;
+  padding: 44px 48px;
+  background: #f5f1e8;
+}
+
+.contacto .antetitulo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #2f5233;
+}
+
+.contacto h2 {
+  margin: 6px 0 22px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a2233;
+}
+
+.condiciones {
+  max-width: 600px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #3a434f;
+}
+
+.condiciones b {
+  color: #153a7a;
+}
+
+.contacto .abajo {
+  padding: 40px 48px;
+  color: #ffffff;
+  background: linear-gradient(160deg, #2f5233 0%, #22381f 100%);
+}
+
+.contacto .llamado {
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.contacto .llamado span {
+  color: #c9a24a;
+}
+
+.datos-empresa {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 30px;
+}
+
+.datos-empresa .rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #a9c4a0;
+}
+
+.datos-empresa .valor {
+  margin-top: 2px;
+  font-size: 16px;
+}
+
+.whatsapp {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 22px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #1a2233;
+  background: #c9a24a;
+  border-radius: 30px;
+}
+
+/* ------------------------------- Cotización -------------------------------- */
+
+.cot {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.cot .encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 34px 46px 26px;
+  background: linear-gradient(160deg, #153a7a 0%, #0f2c5c 100%);
+  color: #ffffff;
+}
+
+.cot .encabezado .marca {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cot .encabezado .razon {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: #c7d4ea;
+  line-height: 1.5;
+}
+
+.cot .encabezado .logo {
+  width: 128px;
+  padding: 7px;
+  background: #ffffff;
+  border-radius: 9px;
+  flex: 0 0 auto;
+}
+
+.cot .encabezado .logo img {
+  display: block;
+  width: 100%;
+}
+
+.cot .folio {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.cot .folio .rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c9a24a;
+}
+
+.cot .folio .numero {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.cot .folio .fechas {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #c7d4ea;
+  line-height: 1.5;
+}
+
+.cot .destinatario {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 28px;
+  padding: 20px 46px;
+  background: #f5f1e8;
+  border-bottom: 1px solid #e6dfd0;
+}
+
+.cot .destinatario .rotulo {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #8a8272;
+}
+
+.cot .destinatario .valor {
+  margin-top: 1px;
+  font-size: 14px;
+  color: #1a2233;
+}
+
+.cot .cuerpo {
+  flex: 1;
+  padding: 22px 46px 0;
+}
+
+.tabla-cot {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.tabla-cot thead th {
+  padding: 8px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: #153a7a;
+  text-align: right;
+}
+
+.tabla-cot thead th:first-child {
+  text-align: left;
+  border-radius: 6px 0 0 6px;
+}
+
+.tabla-cot thead th:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.tabla-cot tbody td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #e6e9ef;
+  text-align: right;
+  vertical-align: top;
+}
+
+.tabla-cot tbody td:first-child {
+  text-align: left;
+}
+
+.tabla-cot .producto {
+  font-weight: 700;
+  color: #153a7a;
+}
+
+.tabla-cot .detalle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #6b7480;
+}
+
+.cot .totales {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.cot .totales table {
+  min-width: 280px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.cot .totales td {
+  padding: 6px 12px;
+  text-align: right;
+}
+
+.cot .totales td:first-child {
+  color: #5a6472;
+  text-align: left;
+}
+
+.cot .totales .granTotal td {
+  padding-top: 10px;
+  border-top: 2px solid #c9a24a;
+  font-size: 18px;
+  font-weight: 800;
+  color: #153a7a;
+}
+
+.cot .observaciones {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: #f5f7fb;
+  border-left: 4px solid #c9a24a;
+  border-radius: 6px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #3a434f;
+}
+
+.cot .observaciones .rotulo {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #8a8272;
+  margin-bottom: 4px;
+}
+
+.cot .pie {
+  margin-top: auto;
+  padding: 22px 46px;
+  color: #ffffff;
+  background: linear-gradient(160deg, #2f5233 0%, #22381f 100%);
+}
+
+.cot .pie .datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px 24px;
+  font-size: 12.5px;
+}
+
+.cot .pie .rotulo {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #a9c4a0;
+}
+
+.cot .pie .valor {
+  margin-top: 2px;
+  font-size: 13.5px;
+}
+
+.cot .pie .gracias {
+  margin-top: 16px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cot .pie .gracias span {
+  color: #c9a24a;
+}
+
+/* --------------------------------- Móvil ----------------------------------- */
+
+@media (max-width: 840px) {
+  .hojas {
+    align-items: flex-start;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}

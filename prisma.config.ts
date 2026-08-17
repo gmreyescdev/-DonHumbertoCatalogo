@@ -17,7 +17,9 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["MIGRATE_DATABASE_URL"] ?? process.env["DATABASE_URL"],
-    shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"],
+    // Se usa `||` y no `??` a propósito: una variable definida pero vacía
+    // ("") tiene que tratarse como ausente. Prisma rechaza una cadena vacía.
+    url: process.env["MIGRATE_DATABASE_URL"] || process.env["DATABASE_URL"],
+    shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"] || undefined,
   },
 });
